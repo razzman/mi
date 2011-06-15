@@ -135,6 +135,10 @@ class MiCache extends Object {
  */
 	static protected $_hasSettingsTable = null;
 
+	static public $section = false;
+
+	static public $sectionPersistent = false;
+
 /**
  * config method
  *
@@ -370,6 +374,13 @@ class MiCache extends Object {
 
 			$string = serialize($string);
 		}
+
+		$section = MiCache::sectionKey(MiCache::$section);
+		$prefix .= $section . DS;
+		if (!empty(MiCache::$sectionPersistent)) {
+			MiCache::$section = false;
+		}
+
 		$hash = md5(Configure::read('Config.language') . $string);
 		$config = current(MiCache::config());
 		for ($i = 1; $i <= $config['dirLevels']; $i++) {
@@ -377,6 +388,23 @@ class MiCache extends Object {
 			$offset = $i * $config['dirLength'];
 		}
 		return str_replace('.', '_', strtolower($prefix . $hash));
+	}
+
+	public static function sectionKey($section = false) {
+		if (!$section || $section == '_global') {
+			return '_global';
+		}
+		$config = current(MiCache::config());
+		$key = '';
+		$offset = null;
+		if ($config['dirLevels'] && strlen($section) >= $config['dirLevels']) {
+			for ($i = 1; $i <= $config['dirLevels']; $i++) {
+				$key .= substr($section, $offset, $config['dirLength']) . DS;
+				$offset = $i * $config['dirLength'];
+			}
+		}
+		$key .= $section;
+		return $key;
 	}
 
 /**

@@ -152,6 +152,7 @@ class SwissArmyComponent extends Object {
 		$this->$name =& $C->$name;
 		if ($init && is_callable(array($this->$name, 'initialize'))) {
 			$this->$name->initialize($C, $config);
+                        $this->$name->startup($C);
 		}
 	}
 
