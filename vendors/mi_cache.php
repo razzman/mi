@@ -377,7 +377,7 @@ class MiCache extends Object {
 
 		$section = MiCache::sectionKey(MiCache::$section);
 		$prefix .= $section . DS;
-		if (!empty(MiCache::$sectionPersistent)) {
+		if (empty(MiCache::$sectionPersistent)) {
 			MiCache::$section = false;
 		}
 
