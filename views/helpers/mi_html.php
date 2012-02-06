@@ -48,9 +48,9 @@ class MiHtmlHelper extends HtmlHelper {
  * @return void
  * @access private
  */
-	public function __construct($settings = array()) {
+	public function __construct($View, $settings = array()) {
 		$this->settings = array_merge($this->settings, $settings);
-		parent::__construct($settings);
+		parent::__construct($View, $settings);
 	}
 
 /**

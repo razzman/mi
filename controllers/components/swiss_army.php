@@ -26,7 +26,7 @@
  * @package       mi
  * @subpackage    mi.controllers.components
  */
-class SwissArmyComponent extends Object {
+class SwissArmyComponent extends Component {
 
 /**
  * name property
@@ -45,12 +45,12 @@ class SwissArmyComponent extends Object {
 	public $components = array('Session', 'RequestHandler');
 
 /**
- * settings property
+ * defaults property
  *
  * @var array
  * @access public
  */
-	public $settings = array(
+	public $defaults = array(
 		'autoLanguage' => false,
 		'autoLayout' => false,
 		'authAutoFields' => false,
@@ -134,7 +134,7 @@ class SwissArmyComponent extends Object {
 		if (isset($this->$name)) {
 			return;
 		}
-		$C =& $this->Controller;
+		$C = $this->Controller;
 		$init = false;
 		if (!isset($C->$name)) {
 			$init = true;
@@ -149,7 +149,7 @@ class SwissArmyComponent extends Object {
 				$C->$name = new $cName();
 			}
 		}
-		$this->$name =& $C->$name;
+		$this->$name = $C->$name;
 		if ($init && is_callable(array($this->$name, 'initialize'))) {
 			$this->$name->initialize($C, $config);
                         $this->$name->startup($C);
@@ -181,7 +181,7 @@ class SwissArmyComponent extends Object {
  * @access public
  */
 	public function back($steps = 1, $default = null, $redirect = true, $thread = null) {
-		$C =& $this->Controller;
+		$C = $this->Controller;
 		if (!$thread) {
 			$thread = $this->_browseKey();
 		}
@@ -242,7 +242,7 @@ class SwissArmyComponent extends Object {
  * @access public
  */
 	public function beforeRender() {
-		$C =& $this->Controller;
+		$C = $this->Controller;
 
 		if (empty($C) || !empty($C->params['requested'])) {
 			return;
@@ -298,7 +298,7 @@ class SwissArmyComponent extends Object {
  * @access public
  */
 	public function blackHole($reason = null) {
-		$C =& $this->Controller;
+		$C = $this->Controller;
 		if ($reason == 'post') {
 			if (empty($C->params['url']['token'])) {
 				return $this->back();
@@ -373,7 +373,7 @@ class SwissArmyComponent extends Object {
  * @access public
  */
 	public function handlePostActions() {
-		$C =& $this->Controller;
+		$C = $this->Controller;
 		if (empty($C->postActions)) {
 			return;
 		}
@@ -411,14 +411,15 @@ class SwissArmyComponent extends Object {
  * @return void
  * @access public
  */
-	public function initialize(&$C, $config = array()) {
+	public function initialize(&$C) {
 		if (!empty($C->params['requested'])) {
 			return;
 		}
-		$this->Controller =& $C;
+		$this->Controller = $C;
 		$this->webroot = $this->Controller->webroot;
-
-		$this->settings = array_merge($this->settings, $config);
+		
+		$this->settings = array_merge($this->defaults, $this->settings);
+		
 		if ($this->settings['usingSubdomains'] === null) {
 			$cookieDomain = ini_get('session.cookie_domain');
 			if ($cookieDomain && $cookieDomain[0] === '.') {
@@ -492,7 +493,7 @@ class SwissArmyComponent extends Object {
 		if (!$this->settings['autoLanguage']) {
 			return;
 		}
-		$C =& $this->Controller;
+		$C = $this->Controller;
 		if (isset($C->params['lang'])) {
 			Configure::write('Config.language', $C->params['lang']);
 			$this->Session->write('Config.language', $C->params['lang']);
@@ -518,7 +519,7 @@ class SwissArmyComponent extends Object {
  * @access protected
  */
 	protected function _browseHistory($thread = null) {
-		$C =& $this->Controller;
+		$C = $this->Controller;
 		if (!$this->settings['browseHistory'] || !empty($_FORM) && empty($C->params['requested'])) {
 			return;
 		}
@@ -557,7 +558,7 @@ class SwissArmyComponent extends Object {
  * @access public
  */
 	public function lookup($input = '') {
-		$C =& $this->Controller;
+		$C = $this->Controller;
 		if (!$input) {
 			$input = $C->params['url']['q'];
 		}
@@ -595,7 +596,7 @@ class SwissArmyComponent extends Object {
 		if (is_array($mode)) {
 			extract (array_merge(array('mode' => 'both'), $mode));
 		}
-		$C =& $this->Controller;
+		$C = $this->Controller;
 		$mode = low($mode);
 		if ($mode === 'post' || $mode === 'both' && $C->action != 'admin_multi_edit') {
 			$C->set('filterOptions', $this->settings['filterOperators']);
@@ -702,7 +703,7 @@ class SwissArmyComponent extends Object {
  * @access public
  */
 	public function redirect($url, $status, $exist, $force) {
-		$C =& $this->Controller;
+		$C = $this->Controller;
 		if (!$C) {
 			return false;
 		}
@@ -724,7 +725,7 @@ class SwissArmyComponent extends Object {
  * @access public
  */
 	public function setDefaultPageTitle() {
-		$C =& $this->Controller;
+		$C = $this->Controller;
 		if (empty ($C) || !empty($C->params['requested'])) {
 			return;
 		}
@@ -761,7 +762,7 @@ class SwissArmyComponent extends Object {
  * @access public
  */
 	public function setFilterFlash($filters) {
-		$C =& $this->Controller;
+		$C = $this->Controller;
 		if (!$filters) {
 			$C->Session->setFlash('No filter set');
 			return;
@@ -797,8 +798,8 @@ class SwissArmyComponent extends Object {
 		if ($run) {
 			return;
 		}
-		$C =& $this->Controller;
-		$modelClass =& $C->modelClass;
+		$C = $this->Controller;
+		$modelClass = $C->modelClass;
 		$sets = array();
 		if (isset($C->{$modelClass}->actsAs['Tree']) ||
 			$C->{$modelClass}->actsAs && in_array('Tree', $C->{$modelClass}->actsAs)) {

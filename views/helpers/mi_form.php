@@ -59,7 +59,8 @@ class MiFormHelper extends FormHelper {
 		if (App::import('Helper', 'MiAsset.Asset')) {
 			$this->helpers[] = 'MiAsset.Asset';
 		}
-		parent::__construct();
+		
+		parent::__construct(new View(false));
 	}
 
 /**
