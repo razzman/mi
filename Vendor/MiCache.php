@@ -149,6 +149,7 @@ class MiCache extends Object {
  * @access public
  */
 	public static function config($config = array()) {
+
 		if (!$config && MiCache::$setting) {
 			return array(MiCache::$setting => MiCache::$settings[MiCache::$setting]);
 		}
@@ -157,11 +158,14 @@ class MiCache extends Object {
 		if (!MiCache::$setting) {
 			MiCache::$setting = $name;
 		}
+		
 		MiCache::$settings[$name] = am($_defaults, $config);
 		if (MiCache::$settings[$name]['path'][0] != '/') {
 			MiCache::$settings[$name]['path'] = CACHE . MiCache::$settings[$name]['path'];
 		}
+
 		if (in_array(MiCache::$settings[$name]['engine'], array('File', 'MiFile')) && !is_dir(MiCache::$settings[$name]['path'])) {
+			App::uses('Folder', 'Utility');
 			new Folder(MiCache::$settings[$name]['path'], true);
 		}
 		Cache::config($name, MiCache::$settings[$name]);
@@ -243,7 +247,7 @@ class MiCache extends Object {
 		if (MiCache::$setting === null) {
 			MiCache::config();
 		}
-		App::import('Vendor', 'Mi.Mi');
+		App::uses('Mi', 'Mi.Vendor');
 		if ($func === null || !in_array($func, get_class_methods('Mi'))) {
 			if ($numArgs > 2) {
 				array_unshift($params, $func);
@@ -532,7 +536,7 @@ class MiCache extends Object {
  */
 	static protected function _exec($cmd, &$out = null) {
 		if (!class_exists('Mi')) {
-			App::import('Vendor', 'Mi.Mi');
+			App::uses('Mi', 'Mi.Vendor');
 		}
 		return Mi::exec($cmd, $out);
 	}
@@ -548,6 +552,7 @@ class MiCache extends Object {
  */
 	static protected function _createDir($path) {
 		if (!is_dir($path)) {
+			App::uses('Folder', 'Utility');
 			new Folder($path, true);
 		}
 		return is_writable($path);
@@ -561,7 +566,7 @@ class MiCache extends Object {
  */
 	static protected function _hasDb() {
 		if (MiCache::$_hasDb === null) {
-			MiCache::$_hasDb = file_exists(CONFIGS . 'database.php');
+			MiCache::$_hasDb = file_exists(APP . 'Config' . DS . 'database.php');
 		}
 		if (MiCache::$_hasDb) {
 			return true;
@@ -619,12 +624,26 @@ class MiFileEngine extends FileEngine {
 			'serialize'=> false,
 			'isWindows' => false
 		), $settings));
+
+
+		$path = new SplFileInfo($this->settings['path'] . DS . 'cake');
+		try {
+			$this->_File = $path->openFile('c+');
+		} catch (Exception $e) {
+			trigger_error($e->getMessage(), E_USER_WARNING);
+			return false;
+		}
+		App::uses('Folder', 'Utility');
+		$this->_File->Folder = new Folder();
+
+		/*				
 		if (!isset($this->_File)) {
 			if (!class_exists('File')) {
-				require LIBS . 'file.php';
+				App::uses('File', 'Utility');
 			}
 			$this->_File = new File($this->settings['path'] . DS . 'cake');
 		}
+		*/
 
 		if (DIRECTORY_SEPARATOR === '\\') {
 			$this->settings['isWindows'] = true;
@@ -635,6 +654,7 @@ class MiFileEngine extends FileEngine {
 		if (empty($this->settings['path'])) {
 			return false;
 		}
+		return true;
 		return $this->__active();
 	}
 
@@ -675,6 +695,7 @@ class MiFileEngine extends FileEngine {
 		}
 
 		if (DS === '\\') {
+			App::uses('Folder', 'Utility');
 			$Folder = new Folder($dir);
 			$files = $Folder->findRecursive('(?!\\.|empty).*');
 			foreach($files as $file) {
@@ -698,7 +719,7 @@ class MiFileEngine extends FileEngine {
  */
 	static protected function _exec($cmd, &$out = null) {
 		if (!class_exists('Mi')) {
-			App::import('Vendor', 'Mi.Mi');
+			App::uses('Mi', 'Mi.Vendor');
 		}
 		return Mi::exec($cmd, $out);
 	}
@@ -713,6 +734,6 @@ class MiFileEngine extends FileEngine {
  * @access private
  */
 	public function __destruct() {
-		Cache::getInstance()->__name = 'default';
+		//Cache::getInstance()->__name = 'default';
 	}
 }
