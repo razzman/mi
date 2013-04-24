@@ -172,7 +172,7 @@ class Mi {
 			foreach ($paths as $i => $path) {
 				if (rtrim($path, DS) == rtrim(APP, DS)) {
 					$folder = new Folder(APP);
-					$tFiles = $folder->find(low($type) . '.*php');
+					$tFiles = $folder->find(strtolower($type) . '.*php');
 				} elseif ($type === 'View') {
 					$tFiles = Mi::files($path, $excludeFolders, '.*ctp');
  				} else {
@@ -215,7 +215,7 @@ class Mi {
 				} else {
 					if ($type === 'Plugin') {
 						foreach($types as $_type) {
-							if (strpos($file, low($_type))) {
+							if (strpos($file, strtolower($_type))) {
 								$suffix = $_type;
 								break;
 							}
@@ -472,7 +472,7 @@ class Mi {
 		$params = func_get_args();
 		unset($params[0]);
 		$function = Inflector::pluralize(Inflector::Classify($type));
-		$function[0] = low($function[0]);
+		$function[0] = strtolower($function[0]);
 		return call_user_func_array(array('Mi', $function), $params);
 	}
 
@@ -487,7 +487,7 @@ class Mi {
  * @access public
  */
 	public function paths($type = null, $params = array()) {
-		$type = low($type);
+		$type = strtolower($type);
 		$plugin = $locale = null;
 		if (!empty($params['plugin'])) {
 			$plugin = $params['plugin'];
@@ -524,9 +524,9 @@ class Mi {
 			return $pluginPaths;
 		}
 		if (Mi::cakeVersion() === '1.2') {
-			$paths = Configure::read(low($type) . 'Paths');
+			$paths = Configure::read(strtolower($type) . 'Paths');
 		} else {
-			$paths = App::path(low($type) . 's');
+			$paths = App::path(strtolower($type) . 's');
 		}
 		if ($type === 'shell') {
 			if (Mi::cakeVersion() === '1.2') {
@@ -541,7 +541,7 @@ class Mi {
 			$paths = array(APP . 'tests' . DS . 'cases');
 		}
 		if (!$paths) {
-			$paths = array(APP . low($type));
+			$paths = array(APP . strtolower($type));
 		}
 		foreach($paths as $i => $path) {
 			if (!is_dir($path)) {
