@@ -241,7 +241,7 @@ class SwissArmyComponent extends Component {
  * @return void
  * @access public
  */
-	public function beforeRender() {
+	public function beforeRender(Controller $C) {
 		$C = $this->Controller;
 
 		if (empty($C) || !empty($C->params['requested'])) {
@@ -411,7 +411,7 @@ class SwissArmyComponent extends Component {
  * @return void
  * @access public
  */
-	public function initialize(&$C) {
+	public function initialize(Controller $C) {
 		if (!empty($C->params['requested'])) {
 			return;
 		}
